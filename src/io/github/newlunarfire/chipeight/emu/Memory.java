@@ -1,0 +1,88 @@
+/**
+ * 
+ */
+package io.github.newlunarfire.chipeight.emu;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+/**
+ * @author tommy
+ *
+ */
+public class Memory {
+	public byte rom[];
+	public byte program[];
+	
+	public Memory()
+	{
+		rom = new byte[4096];
+	}
+	
+	public void initialize()
+	{
+		//Load font
+		loadFont();
+		
+		//Load program in memory
+		for(int i = 0; i < program.length; i++)
+			rom[0x200+i] = program[i];
+	}
+	
+	public void clear()
+	{
+		//Clear Memory
+		for(int i = 0; i < 4096; i++)
+			rom[i] = 0;
+	}
+	
+	public void loadFile(String filename)
+	{
+		File f = new File(filename);
+		
+		try
+		{
+			program = Files.readAllBytes(f.toPath());
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void loadFont()
+	{
+		final int[] font = {
+					  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+					  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+					  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+					  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+					  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+					  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+					  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+					  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+					  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+					  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+					  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+					  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+					  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+					  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+					  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+					  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+		};
+		
+		for(int i = 0; i < 80; i++)
+			rom[0x50 + i] = (byte) font[i];
+	}
+	
+	public int fetchByte(int adr)
+	{
+		return rom[adr & 0xFFFF] & 0xFF;
+	}
+	
+	public int fetchShort(int adr)
+	{
+		return ((rom[adr & 0xFFFF] & 0xFF) << 8) | (rom[(adr + 1) & 0xFFFF] & 0xFF);
+	}
+}
